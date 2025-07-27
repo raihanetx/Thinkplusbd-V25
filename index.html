@@ -2010,7 +2010,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             if (isLoadingProducts || (allProductsData.length > 0 && !forceRefresh && !initialLoadPending)) { return; }
             isLoadingProducts = true;
             try {
-                const response = await fetch('get_discounted_products.php');
+                const response = await fetch('get_products.php');
                 const products = await response.json();
                 allProductsData = products.map(p => ({...p, slug: createSlug(p.name)}));
                 if (!Array.isArray(allProductsData)) { throw new Error("Invalid product data format."); }
