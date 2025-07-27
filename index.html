@@ -2464,6 +2464,36 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             const reviewsContainer = detailPageElement.querySelector('#reviews-container');
             fetchAndDisplayReviews(product.id, reviewsContainer);
 
+            const reviewForm = detailPageElement.querySelector('#reviewForm');
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const reviewerName = document.getElementById('reviewerName').value;
+                    const reviewRating = document.getElementById('reviewRating').value;
+                    const reviewComment = document.getElementById('reviewComment').value;
+                    const productId = detailPageElement.dataset.productId;
+
+                    const response = await fetch('submit_review.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            product_id: productId,
+                            name: reviewerName,
+                            rating: reviewRating,
+                            comment: reviewComment,
+                        }),
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        showToast('Review submitted for approval!', 'success');
+                        reviewForm.reset();
+                    } else {
+                        showToast(`Error: ${result.message}`, 'error');
+                    }
+                });
+            }
+
             const detailDurationSelector = detailPageElement.querySelector(`#duration-detail-${product.id}`);
             if (detailDurationSelector) {
                 detailDurationSelector.addEventListener('change', (e) => {
@@ -2516,8 +2546,8 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             if (seeMoreDescription && descriptionContent) {
                 const fullText = descriptionContent.innerHTML;
                 const lines = fullText.split('<br>');
-                if (lines.length > 6) {
-                    const truncatedText = lines.slice(0, 5).join('<br>');
+                if (lines.length > 7) {
+                    const truncatedText = lines.slice(0, 6).join('<br>');
                     descriptionContent.innerHTML = truncatedText;
                     seeMoreDescription.style.display = 'inline';
                     seeMoreDescription.addEventListener('click', function(e) {
