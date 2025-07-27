@@ -153,13 +153,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'durations' => []
         ];
 
-        if (isset($_POST['discount_toggle']) && $_POST['discount_toggle'] === 'on') {
-            $new_product['discount'] = [
-                'type' => $_POST['discount_type'],
-                'value' => (float)$_POST['discount_value']
-            ];
-        }
-
         $products[] = $new_product;
         save_products($products);
 
@@ -200,18 +193,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 $products[$product_index]['durations'] = $durations;
 
-                if (isset($_POST['discount_toggle']) && $_POST['discount_toggle'] === 'on') {
-                    $products[$product_index]['discount'] = [
-                        'type' => $_POST['discount_type'],
-                        'value' => (float)$_POST['discount_value'],
-                        'startDate' => $_POST['start_date'],
-                        'endDate' => $_POST['end_date'],
-                        'status' => $_POST['status']
-                    ];
-                } else {
-                    unset($products[$product_index]['discount']);
-                }
-
                 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                     $upload_dir = 'product_images/';
                     $file_name = basename($_FILES['image']['name']);
@@ -224,36 +205,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 save_products($products);
                 header("Location: admin_dashboard.php?page=edit_products&category=" . urlencode($products[$product_index]['category']) . "&status=updated");
-                exit();
-            }
-        }
-    }
-
-    if (isset($_POST['update_discount'])) {
-        $product_id = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;
-
-        if ($product_id > 0) {
-            $products = get_products();
-            $product_index = -1;
-
-            foreach ($products as $index => $product) {
-                if ($product['id'] === $product_id) {
-                    $product_index = $index;
-                    break;
-                }
-            }
-
-            if ($product_index !== -1) {
-                $products[$product_index]['discount'] = [
-                    'type' => $_POST['discount_type'],
-                    'value' => (float)$_POST['discount_value'],
-                    'startDate' => $_POST['start_date'],
-                    'endDate' => $_POST['end_date'],
-                    'status' => $_POST['status']
-                ];
-
-                save_products($products);
-                header("Location: admin_dashboard.php?page=discounts&status=updated");
                 exit();
             }
         }
@@ -328,7 +279,6 @@ $current_total_pending_all_time = getCurrentTotalPendingOrders($all_site_orders_
                     <li><a href="admin_dashboard.php?page=edit_products" class="<?php echo (isset($_GET['page']) && $_GET['page'] === 'edit_products') ? 'active' : ''; ?>"><i class="fas fa-edit"></i> <span>Edit Products</span></a></li>
                     <li><a href="admin_dashboard.php?page=reviews" class="<?php echo (isset($_GET['page']) && $_GET['page'] === 'reviews') ? 'active' : ''; ?>"><i class="fas fa-star"></i> <span>Manage Reviews</span></a></li>
                     <li><a href="admin_dashboard.php?page=coupons" class="<?php echo (isset($_GET['page']) && $_GET['page'] === 'coupons') ? 'active' : ''; ?>"><i class="fas fa-tags"></i> <span>Manage Coupons</span></a></li>
-                    <li><a href="admin_dashboard.php?page=discounts" class="<?php echo (isset($_GET['page']) && $_GET['page'] === 'discounts') ? 'active' : ''; ?>"><i class="fas fa-percent"></i> <span>Discount Management</span></a></li>
                     <li><a href="product_code_generator.html" target="_blank"><i class="fas fa-plus-circle"></i> <span>Add Product Helper</span></a></li>
                     <li><a href="admin_dashboard.php?logout=1"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></a></li>
                 </ul>
@@ -347,8 +297,6 @@ $current_total_pending_all_time = getCurrentTotalPendingOrders($all_site_orders_
                 <?php include 'admin_reviews.php'; ?>
             <?php elseif (isset($_GET['page']) && $_GET['page'] === 'coupons'): ?>
                 <?php include 'admin_coupons.php'; ?>
-            <?php elseif (isset($_GET['page']) && $_GET['page'] === 'discounts'): ?>
-                <?php include 'admin_discounts.php'; ?>
             <?php elseif (isset($_GET['page']) && $_GET['page'] === 'categories'): ?>
                 <div class="content-card">
                     <h2 class="card-title">Manage Categories</h2>
@@ -521,25 +469,6 @@ $current_total_pending_all_time = getCurrentTotalPendingOrders($all_site_orders_
                             <input type="checkbox" name="isFeatured" id="isFeatured" value="true">
                         </div>
 
-                        <div class="form-group" style="margin-bottom: 1rem;">
-                            <label for="discount-toggle">Apply Discount?</label>
-                            <input type="checkbox" name="discount_toggle" id="discount-toggle">
-                        </div>
-
-                        <div id="discount-fields" style="display: none;">
-                            <div class="form-group" style="margin-bottom: 1rem;">
-                                <label for="discount-type">Discount Type</label>
-                                <select name="discount_type" id="discount-type" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
-                                    <option value="percentage">Percentage</option>
-                                    <option value="fixed">Fixed Amount</option>
-                                </select>
-                            </div>
-                            <div class="form-group" style="margin-bottom: 1rem;">
-                                <label for="discount-value">Discount Value</label>
-                                <input type="number" step="0.01" name="discount_value" id="discount-value" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
-                            </div>
-                        </div>
-
                         <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; border: none; background-color: var(--primary-color); color: white; border-radius: var(--border-radius); cursor: pointer;">Add Product</button>
                     </form>
                 </div>
@@ -608,40 +537,6 @@ $current_total_pending_all_time = getCurrentTotalPendingOrders($all_site_orders_
                             <div class="form-group" style="margin-bottom: 1rem;">
                                 <label for="image">Upload New Image (optional)</label>
                                 <input type="file" name="image" id="image" class="form-control-file">
-                            </div>
-
-                            <div class="form-group" style="margin-bottom: 1rem;">
-                                <label for="discount-toggle">Apply Discount?</label>
-                                <input type="checkbox" name="discount_toggle" id="discount-toggle" <?php if (isset($product_to_edit['discount'])) echo 'checked'; ?>>
-                            </div>
-
-                            <div id="discount-fields" style="display: <?php if (isset($product_to_edit['discount'])) echo 'block'; else echo 'none'; ?>;">
-                                <div class="form-group" style="margin-bottom: 1rem;">
-                                    <label for="discount-type">Discount Type</label>
-                                    <select name="discount_type" id="discount-type" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
-                                        <option value="percentage" <?php if (isset($product_to_edit['discount']) && $product_to_edit['discount']['type'] === 'percentage') echo 'selected'; ?>>Percentage</option>
-                                        <option value="fixed" <?php if (isset($product_to_edit['discount']) && $product_to_edit['discount']['type'] === 'fixed') echo 'selected'; ?>>Fixed Amount</option>
-                                    </select>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 1rem;">
-                                    <label for="discount-value">Discount Value</label>
-                                    <input type="number" step="0.01" name="discount_value" id="discount-value" value="<?php if (isset($product_to_edit['discount'])) echo $product_to_edit['discount']['value']; ?>" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
-                                </div>
-                                <div class="form-group" style="margin-bottom: 1rem;">
-                                    <label for="start-date">Start Date</label>
-                                    <input type="date" name="start_date" id="start-date" value="<?php if (isset($product_to_edit['discount'])) echo $product_to_edit['discount']['startDate']; ?>" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
-                                </div>
-                                <div class="form-group" style="margin-bottom: 1rem;">
-                                    <label for="end-date">End Date</label>
-                                    <input type="date" name="end_date" id="end-date" value="<?php if (isset($product_to_edit['discount'])) echo $product_to_edit['discount']['endDate']; ?>" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
-                                </div>
-                                <div class="form-group" style="margin-bottom: 1rem;">
-                                    <label for="status">Status</label>.
-                                    <select name="status" id="status" class="form-control" style="width: 100%; padding: 0.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color);">
-                                        <option value="active" <?php if (isset($product_to_edit['discount']) && $product_to_edit['discount']['status'] === 'active') echo 'selected'; ?>>Active</option>
-                                        <option value="inactive" <?php if (isset($product_to_edit['discount']) && $product_to_edit['discount']['status'] === 'inactive') echo 'selected'; ?>>Inactive</option>
-                                    </select>
-                                </div>
                             </div>
 
                             <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; border: none; background-color: var(--primary-color); color: white; border-radius: var(--border-radius); cursor: pointer;">Update Product</button>
