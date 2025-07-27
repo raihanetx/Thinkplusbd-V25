@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -577,14 +576,14 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         .product-detail-main-image-container { flex: 1 1 400px; aspect-ratio: 1 / 1; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .product-detail-info { flex: 1 1 500px; display: flex; flex-direction: column; }
         .product-detail-title { font-size: 2rem; color: var(--primary-color); margin-bottom: 0.5rem; font-weight: 600; line-height: 1.3; }
-        .product-detail-price { font-size: 1.8rem; color: var(--primary-color); margin-bottom: 0.75rem; font-weight: 700; }
+        .product-detail-price { font-size: 2.2rem; color: var(--primary-color); margin-bottom: 1rem; font-weight: 700; }
         .product-detail-description { margin-bottom: 1rem; line-height: 1.7; color: var(--text-color); font-size: 1rem; }
         .product-detail-actions { display: flex; gap: 1rem; margin-top: auto; }
-        .product-detail-actions .buy-now-detail, .product-detail-actions .add-to-cart-detail { flex-grow: 1; padding: 0.9rem 1.8rem; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; text-align: center; }
-        .product-detail-actions .buy-now-detail { background-color: var(--primary-color); color: white; border: none; }
-        .product-detail-actions .buy-now-detail:hover { background-color: var(--primary-color); filter: brightness(0.9); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(143,135,241,0.3); }
+        .product-detail-actions .buy-now-detail, .product-detail-actions .add-to-cart-detail { flex-grow: 1; padding: 1rem 2rem; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-align: center; }
+        .product-detail-actions .buy-now-detail { background-color: var(--primary-color); color: white; border: none; box-shadow: 0 4px 15px rgba(143, 135, 241, 0.4); }
+        .product-detail-actions .buy-now-detail:hover { background-color: var(--primary-color); filter: brightness(0.95); transform: translateY(-3px); box-shadow: 0 6px 20px rgba(143,135,241,0.5); }
         .product-detail-actions .add-to-cart-detail { background-color: transparent; color: var(--primary-color); border: 2px solid var(--primary-color) !important; }
-        .product-detail-actions .add-to-cart-detail:hover { background-color: rgba(143,135,241,0.1); border-color: var(--primary-color); filter: brightness(0.95); }
+        .product-detail-actions .add-to-cart-detail:hover { background-color: rgba(143,135,241,0.1); border-color: var(--primary-color); filter: brightness(0.95); transform: translateY(-2px); }
 
         .product-detail-tabs {
             margin-top: 2rem;
@@ -1107,9 +1106,16 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             .product-actions button { width: 100%; margin-bottom: 0.45rem; }
             .product-actions button:last-child { margin-bottom: 0; }
             .product-detail-container {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
+        }
+
+        .product-detail-short-description {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 1rem;
         }
             .product-detail-title { white-space: normal; overflow: visible; text-overflow: initial; }
             .product-listings.container { padding-left: 0.45rem; padding-right: 0.45rem; padding-top: 0.45rem; padding-bottom: 0.45rem; }
@@ -2279,7 +2285,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                 const reviews = await response.json();
                 let reviewsHTML = '';
                 if (reviews.length > 0) {
-                    reviews.slice(0, 4).forEach(review => {
+                    reviews.slice(0, 3).forEach(review => {
                         reviewsHTML += `
                             <div class="review">
                                 <div class="review-author">
@@ -2297,7 +2303,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                 }
                 container.innerHTML = reviewsHTML;
 
-                if (reviews.length > 4) {
+                if (reviews.length > 3) {
                     document.getElementById('see-more-reviews').style.display = 'inline';
                 } else {
                     document.getElementById('see-more-reviews').style.display = 'none';
@@ -2372,7 +2378,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                     <div class="product-detail-main-image-container">${tempImageDiv.innerHTML}</div>
                     <div class="product-detail-info">
                         <h2 class="product-detail-title">${product.name || 'N/A'}</h2>
-                        <p class="product-detail-description">${shortDescription}</p>
+                        <p class="product-detail-short-description">${shortDescription}</p>
                         <div class="product-detail-price">${priceDisplayHTML}</div>
                         ${durationSelectorHTML}
                         <div class="product-detail-actions">
@@ -2396,7 +2402,31 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
 
                 <div id="reviews" class="product-detail-tab-content expandable">
                     <div id="reviews-container" class="expandable-content"></div>
-                    <a href="#" class="see-more-link" id="see-more-reviews">...See more</a>
+                    <a href="#" class="see-more-link" id="see-more-reviews" style="display:none;">...See more</a>
+                    <div class="review-form">
+                        <h3>Write a Review</h3>
+                        <form id="reviewForm">
+                            <div class="form-group">
+                                <label for="reviewerName">Name</label>
+                                <input type="text" id="reviewerName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewRating">Rating</label>
+                                <select id="reviewRating" required>
+                                    <option value="5">5 Stars</option>
+                                    <option value="4">4 Stars</option>
+                                    <option value="3">3 Stars</option>
+                                    <option value="2">2 Stars</option>
+                                    <option value="1">1 Star</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewComment">Comment</label>
+                                <textarea id="reviewComment" rows="4" required></textarea>
+                            </div>
+                            <button type="submit">Submit Review</button>
+                        </form>
+                    </div>
                 </div>
 
                 ${relatedProductsHTML}
