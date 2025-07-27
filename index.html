@@ -1142,6 +1142,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
 
         @media (min-width: 769px) {
             .product-detail-container {
+                display: flex;
                 flex-direction: row;
                 gap: 2rem;
                 margin-bottom: 2rem;
@@ -1150,11 +1151,14 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             .product-detail-main-image-container {
                 order: 1;
                 flex: 1 1 400px;
+                 max-width: 400px;
             }
 
             .product-detail-info {
                 order: 2;
                 flex: 1 1 500px;
+                display: flex;
+                flex-direction: column;
             }
         }
             .product-detail-title { white-space: normal; overflow: visible; text-overflow: initial; }
