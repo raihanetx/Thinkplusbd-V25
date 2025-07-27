@@ -1,45 +1,43 @@
 <?php
-session_start();
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $product_id = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;
-    $name = isset($_POST['name']) ? trim($_POST['name']) : '';
-    $rating = isset($_POST['rating']) ? (int)$_POST['rating'] : 0;
-    $comment = isset($_POST['comment']) ? trim($_POST['comment']) : '';
+$input = json_decode(file_get_contents('php://input'), true);
 
-    if ($product_id > 0 && !empty($name) && $rating > 0 && !empty($comment)) {
-        $reviews_file_path = __DIR__ . '/reviews.json';
-        $reviews = [];
-        if (file_exists($reviews_file_path)) {
-            $reviews_json = file_get_contents($reviews_file_path);
-            $reviews = json_decode($reviews_json, true);
-        }
+if (isset($input['product_id'], $input['name'], $input['rating'], $input['comment'])) {
+    $productId = $input['product_id'];
+    $name = htmlspecialchars($input['name']);
+    $rating = intval($input['rating']);
+    $comment = htmlspecialchars($input['comment']);
 
-        $new_review = [
-            'id' => uniqid(),
-            'product_id' => $product_id,
-            'name' => $name,
-            'rating' => $rating,
-            'comment' => $comment,
-            'timestamp' => date('Y-m-d H:i:s'),
-            'status' => 'pending' // Add status for admin approval
-        ];
-
-        $reviews[] = $new_review;
-        $json_data = json_encode($reviews, JSON_PRETTY_PRINT);
-        file_put_contents($reviews_file_path, $json_data);
-
-        $redirect_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'index.html';
-        $separator = parse_url($redirect_url, PHP_URL_QUERY) ? '&' : '?';
-        header("Location: " . $redirect_url . $separator . "status=review_submitted");
-        exit();
+    if (empty($name) || empty($comment) || $rating < 1 || $rating > 5) {
+        echo json_encode(['success' => false, 'message' => 'Invalid data provided.']);
+        exit;
     }
-}
 
-$redirect_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : 'index.html';
-$separator = parse_url($redirect_url, PHP_URL_QUERY) ? '&' : '?';
-header("Location: " . $redirect_url . $separator . "status=review_failed");
-exit();
+    $newReview = [
+        'id' => uniqid(),
+        'product_id' => $productId,
+        'name' => $name,
+        'rating' => $rating,
+        'comment' => $comment,
+        'timestamp' => date('Y-m-d H:i:s'),
+        'approved' => false
+    ];
+
+    $reviewsFile = 'reviews.json';
+    $reviews = [];
+    if (file_exists($reviewsFile)) {
+        $reviews = json_decode(file_get_contents($reviewsFile), true);
+    }
+
+    $reviews[] = $newReview;
+
+    if (file_put_contents($reviewsFile, json_encode($reviews, JSON_PRETTY_PRINT))) {
+        echo json_encode(['success' => true, 'message' => 'Review submitted successfully.']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to save review.']);
+    }
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid input.']);
+}
 ?>

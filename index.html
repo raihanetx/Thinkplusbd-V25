@@ -1106,16 +1106,45 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             .product-actions button { width: 100%; margin-bottom: 0.45rem; }
             .product-actions button:last-child { margin-bottom: 0; }
             .product-detail-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-detail-main-image-container {
+            order: 1;
+            width: 100%;
+            flex: none;
+        }
+
+        .product-detail-info {
+            order: 2;
+            width: 100%;
         }
 
         .product-detail-short-description {
             font-size: 1.1rem;
             color: #555;
             margin-bottom: 1rem;
+        }
+
+        @media (min-width: 769px) {
+            .product-detail-container {
+                flex-direction: row;
+                gap: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .product-detail-main-image-container {
+                order: 1;
+                flex: 1 1 400px;
+            }
+
+            .product-detail-info {
+                order: 2;
+                flex: 1 1 500px;
+            }
         }
             .product-detail-title { white-space: normal; overflow: visible; text-overflow: initial; }
             .product-listings.container { padding-left: 0.45rem; padding-right: 0.45rem; padding-top: 0.45rem; padding-bottom: 0.45rem; }
@@ -2435,6 +2464,36 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             const reviewsContainer = detailPageElement.querySelector('#reviews-container');
             fetchAndDisplayReviews(product.id, reviewsContainer);
 
+            const reviewForm = detailPageElement.querySelector('#reviewForm');
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const reviewerName = document.getElementById('reviewerName').value;
+                    const reviewRating = document.getElementById('reviewRating').value;
+                    const reviewComment = document.getElementById('reviewComment').value;
+                    const productId = detailPageElement.dataset.productId;
+
+                    const response = await fetch('submit_review.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            product_id: productId,
+                            name: reviewerName,
+                            rating: reviewRating,
+                            comment: reviewComment,
+                        }),
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        showToast('Review submitted for approval!', 'success');
+                        reviewForm.reset();
+                    } else {
+                        showToast(`Error: ${result.message}`, 'error');
+                    }
+                });
+            }
+
             const detailDurationSelector = detailPageElement.querySelector(`#duration-detail-${product.id}`);
             if (detailDurationSelector) {
                 detailDurationSelector.addEventListener('change', (e) => {
@@ -2487,8 +2546,8 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             if (seeMoreDescription && descriptionContent) {
                 const fullText = descriptionContent.innerHTML;
                 const lines = fullText.split('<br>');
-                if (lines.length > 6) {
-                    const truncatedText = lines.slice(0, 5).join('<br>');
+                if (lines.length > 7) {
+                    const truncatedText = lines.slice(0, 6).join('<br>');
                     descriptionContent.innerHTML = truncatedText;
                     seeMoreDescription.style.display = 'inline';
                     seeMoreDescription.addEventListener('click', function(e) {
