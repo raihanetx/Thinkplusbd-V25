@@ -622,14 +622,12 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         .expandable.expanded .expandable-content {
             max-height: 1000px; /* Adjust as needed */
         }
-        .show-more-btn {
-            background: none;
-            border: 1px solid var(--primary-color);
+        .see-more-link {
             color: var(--primary-color);
-            padding: 0.5rem 1rem;
             cursor: pointer;
-            margin-top: 1rem;
-            border-radius: 5px;
+            text-decoration: underline;
+            display: inline-block;
+            margin-top: 10px;
         }
 
         .related-products-section { margin-top: 3rem; padding: 2rem 0; background: transparent; }
@@ -1102,19 +1100,10 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             .product-actions button { width: 100%; margin-bottom: 0.45rem; }
             .product-actions button:last-child { margin-bottom: 0; }
             .product-detail-container {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 1rem;
-            }
-            .product-detail-main-image-container {
-                grid-column: 2 / 3;
-                grid-row: 1 / 2;
-                aspect-ratio: 4 / 3;
-            }
-            .product-detail-info {
-                grid-column: 1 / 2;
-                grid-row: 1 / 2;
-            }
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
             .product-detail-title { white-space: normal; overflow: visible; text-overflow: initial; }
             .product-listings.container { padding-left: 0.9rem; padding-right: 0.9rem; padding-top: 0.45rem; padding-bottom: 0.45rem; }
             .fab-container { bottom: 60px; right: 13px; padding-bottom: 22px; }
@@ -2283,7 +2272,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                 const reviews = await response.json();
                 let reviewsHTML = '';
                 if (reviews.length > 0) {
-                    reviews.forEach(review => {
+                    reviews.slice(0, 4).forEach(review => {
                         reviewsHTML += `
                             <div class="review">
                                 <div class="review-author">
@@ -2300,6 +2289,13 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                     reviewsHTML = '<p>No reviews yet.</p>';
                 }
                 container.innerHTML = reviewsHTML;
+
+                if (reviews.length > 4) {
+                    document.getElementById('see-more-reviews').style.display = 'inline';
+                } else {
+                    document.getElementById('see-more-reviews').style.display = 'none';
+                }
+
             } catch (error) {
                 console.error('Error fetching reviews:', error);
                 container.innerHTML = '<p>Could not load reviews.</p>';
@@ -2318,6 +2314,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
 
             product = { ...product };
             delete product.currentSelectedPrice;
+            detailPageElement.dataset.productId = productId;
 
             const imageContainer = document.createElement('div');
             imageContainer.className = 'product-detail-main-image-container';
@@ -2364,35 +2361,39 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             const longDescription = product.longDescription ? nl2br(htmlspecialchars_decode(product.longDescription)) : shortDescription;
 
             detailPageElement.innerHTML = `
-        <div class="product-detail-main-image-container">${tempImageDiv.innerHTML}</div>
-        <div class="product-detail-info">
-            <h2 class="product-detail-title">${product.name || 'N/A'}</h2>
-            <p class="product-detail-description">${shortDescription}</p>
-            <div class="product-detail-price">${priceDisplayHTML}</div>
-            ${durationSelectorHTML}
-            <div class="product-detail-actions">
-                <button class="buy-now-detail">Buy Now</button>
-                <button class="add-to-cart-detail">Add to Cart</button>
-            </div>
-        </div>
+                <div class="product-detail-container">
+                    <div class="product-detail-main-image-container">${tempImageDiv.innerHTML}</div>
+                    <div class="product-detail-info">
+                        <h2 class="product-detail-title">${product.name || 'N/A'}</h2>
+                        <p class="product-detail-description">${shortDescription}</p>
+                        <div class="product-detail-price">${priceDisplayHTML}</div>
+                        ${durationSelectorHTML}
+                        <div class="product-detail-actions">
+                            <button class="buy-now-detail">Buy Now</button>
+                            <button class="add-to-cart-detail">Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="product-detail-tabs">
-            <div class="product-detail-tab active" data-tab="description">Description</div>
-            <div class="product-detail-tab" data-tab="reviews">Reviews</div>
-        </div>
+                <div class="product-detail-tabs">
+                    <div class="product-detail-tab active" data-tab="description">Description</div>
+                    <div class="product-detail-tab" data-tab="reviews">Reviews</div>
+                </div>
 
-        <div id="description" class="product-detail-tab-content active expandable">
-            <p class="expandable-content">${longDescription}</p>
-            <button class="show-more-btn">...See more</button>
-        </div>
+                <div id="description" class="product-detail-tab-content active expandable">
+                    <div class="expandable-content" id="description-content">
+                        ${longDescription}
+                    </div>
+                    <a href="#" class="see-more-link" id="see-more-description">...See more</a>
+                </div>
 
-        <div id="reviews" class="product-detail-tab-content expandable">
-            <div id="reviews-container" class="expandable-content"></div>
-            <button class="show-more-btn">...See more</button>
-        </div>
+                <div id="reviews" class="product-detail-tab-content expandable">
+                    <div id="reviews-container" class="expandable-content"></div>
+                    <a href="#" class="see-more-link" id="see-more-reviews">...See more</a>
+                </div>
 
-        ${relatedProductsHTML}
-    `;
+                ${relatedProductsHTML}
+            `;
 
             const reviewsContainer = detailPageElement.querySelector('#reviews-container');
             fetchAndDisplayReviews(product.id, reviewsContainer);
@@ -2444,23 +2445,73 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         }
 
         function setupShowMore() {
-            document.querySelectorAll('.expandable .show-more-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const expandable = this.parentElement;
-                    expandable.classList.toggle('expanded');
-                    if (expandable.classList.contains('expanded')) {
-                        this.textContent = 'Show Less';
-                        if (expandable.id === 'reviews') {
-                            expandable.querySelector('.review-form').style.display = 'block';
+            const seeMoreDescription = document.getElementById('see-more-description');
+            const descriptionContent = document.getElementById('description-content');
+            if (seeMoreDescription && descriptionContent) {
+                const fullText = descriptionContent.innerHTML;
+                const lines = fullText.split('<br>');
+                if (lines.length > 6) {
+                    const truncatedText = lines.slice(0, 5).join('<br>');
+                    descriptionContent.innerHTML = truncatedText;
+                    seeMoreDescription.style.display = 'inline';
+                    seeMoreDescription.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (this.textContent === '...See more') {
+                            descriptionContent.innerHTML = fullText;
+                            this.textContent = '...See less';
+                        } else {
+                            descriptionContent.innerHTML = truncatedText;
+                            this.textContent = '...See more';
+                        }
+                    });
+                } else {
+                    seeMoreDescription.style.display = 'none';
+                }
+            }
+
+            const seeMoreReviews = document.getElementById('see-more-reviews');
+            if (seeMoreReviews) {
+                seeMoreReviews.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    const reviewsContainer = document.getElementById('reviews-container');
+                    const productId = document.querySelector('.product-detail-page').dataset.productId;
+
+                    if (this.textContent === '...See more') {
+                        try {
+                            const response = await fetch(`get_approved_reviews.php?product_id=${productId}`);
+                            const reviews = await response.json();
+                            let reviewsHTML = '';
+                            if (reviews.length > 0) {
+                                reviews.forEach(review => {
+                                    reviewsHTML += `
+                                        <div class="review">
+                                            <div class="review-author">
+                                                <img src="https://i.postimg.cc/4NtztqPt/IMG-20250603-130207-removebg-preview-1.png" alt="User Avatar" class="review-avatar">
+                                                <span class="review-name">${review.name}</span>
+                                            </div>
+                                            <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+                                            <p class="review-comment">${review.comment}</p>
+                                            <div class="review-timestamp">${review.timestamp}</div>
+                                        </div>
+                                    `;
+                                });
+                            } else {
+                                reviewsHTML = '<p>No reviews yet.</p>';
+                            }
+                            reviewsContainer.innerHTML = reviewsHTML;
+                            this.textContent = '...See less';
+                        } catch (error) {
+                            console.error('Error fetching all reviews:', error);
+                            reviewsContainer.innerHTML = '<p>Could not load all reviews.</p>';
                         }
                     } else {
-                        this.textContent = expandable.id === 'reviews' ? 'View All Reviews' : 'Show More';
-                        if (expandable.id === 'reviews') {
-                            expandable.querySelector('.review-form').style.display = 'none';
-                        }
+                        const reviewsContainer = document.getElementById('reviews-container');
+                        const productId = document.querySelector('.product-detail-page').dataset.productId;
+                        fetchAndDisplayReviews(productId, reviewsContainer);
+                        this.textContent = '...See more';
                     }
                 });
-            });
+            }
         }
 
         function setupTabs() {
