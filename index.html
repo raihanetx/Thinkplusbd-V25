@@ -2484,23 +2484,32 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                     const reviewComment = document.getElementById('reviewComment').value;
                     const productId = detailPageElement.dataset.productId;
 
-                    const response = await fetch('submit_review.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            product_id: productId,
-                            name: reviewerName,
-                            rating: reviewRating,
-                            comment: reviewComment,
-                        }),
-                    });
+                    if (!reviewerName || !reviewRating || !reviewComment) {
+                        showToast('Please fill out all fields.', 'error');
+                        return;
+                    }
 
-                    const result = await response.json();
-                    if (result.success) {
-                        showToast('Review submitted for approval!', 'success');
-                        reviewForm.reset();
-                    } else {
-                        showToast(`Error: ${result.message}`, 'error');
+                    try {
+                        const response = await fetch('submit_review.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                product_id: productId,
+                                name: reviewerName,
+                                rating: reviewRating,
+                                comment: reviewComment,
+                            }),
+                        });
+
+                        const result = await response.json();
+                        if (result.success) {
+                            showToast('Review submitted for approval!', 'success');
+                            reviewForm.reset();
+                        } else {
+                            showToast(`Error: ${result.message}`, 'error');
+                        }
+                    } catch (error) {
+                        showToast('An error occurred while submitting your review.', 'error');
                     }
                 });
             }
@@ -2554,25 +2563,24 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         function setupShowMore() {
             const seeMoreDescription = document.getElementById('see-more-description');
             const descriptionContent = document.getElementById('description-content');
-            if (seeMoreDescription && descriptionContent) {
-                const fullText = descriptionContent.innerHTML;
-                const lines = fullText.split('<br>');
-                if (lines.length > 7) {
-                    const truncatedText = lines.slice(0, 6).join('<br>');
-                    descriptionContent.innerHTML = truncatedText;
-                    seeMoreDescription.style.display = 'inline';
-                    seeMoreDescription.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        if (this.textContent === '...See more') {
-                            descriptionContent.innerHTML = fullText;
-                            this.textContent = '...See less';
-                        } else {
-                            descriptionContent.innerHTML = truncatedText;
-                            this.textContent = '...See more';
-                        }
-                    });
-                } else {
+            const expandableDescription = document.querySelector('#description.expandable');
+
+            if (seeMoreDescription && descriptionContent && expandableDescription) {
+                seeMoreDescription.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    expandableDescription.classList.toggle('expanded');
+                    if (expandableDescription.classList.contains('expanded')) {
+                        this.textContent = '...Show less';
+                    } else {
+                        this.textContent = '...Show more';
+                    }
+                });
+
+                // Initially hide the button if content is not overflowing
+                if (descriptionContent.scrollHeight <= descriptionContent.clientHeight) {
                     seeMoreDescription.style.display = 'none';
+                } else {
+                    seeMoreDescription.style.display = 'inline';
                 }
             }
 
