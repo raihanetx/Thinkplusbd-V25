@@ -667,6 +667,13 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             height: 40px;
             border-radius: 50%;
             margin-right: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
         }
         .review-name {
             font-weight: 600;
@@ -2276,7 +2283,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                         reviewsHTML += `
                             <div class="review">
                                 <div class="review-author">
-                                    <img src="https://i.postimg.cc/4NtztqPt/IMG-20250603-130207-removebg-preview-1.png" alt="User Avatar" class="review-avatar">
+                                    <div class="review-avatar">${review.name.charAt(0)}</div>
                                     <span class="review-name">${review.name}</span>
                                 </div>
                                 <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
@@ -2486,7 +2493,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                                     reviewsHTML += `
                                         <div class="review">
                                             <div class="review-author">
-                                                <img src="https://i.postimg.cc/4NtztqPt/IMG-20250603-130207-removebg-preview-1.png" alt="User Avatar" class="review-avatar">
+                                                <div class="review-avatar">${review.name.charAt(0)}</div>
                                                 <span class="review-name">${review.name}</span>
                                             </div>
                                             <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
