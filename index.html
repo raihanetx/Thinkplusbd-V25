@@ -607,8 +607,6 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         .product-detail-tab-content {
             padding: 2rem 0;
             display: none;
-            max-width: 800px;
-            margin: 0 auto;
         }
         .product-detail-tab-content.active {
             display: block;
@@ -619,6 +617,9 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             transition: max-height 0.5s ease-out;
         }
         .expandable.expanded .expandable-content {
+            max-height: 1000px; /* Adjust as needed */
+        }
+        #reviews-container.expanded {
             max-height: 1000px; /* Adjust as needed */
         }
         .see-more-link {
@@ -2329,7 +2330,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                 const reviews = await response.json();
                 let reviewsHTML = '';
                 if (reviews.length > 0) {
-                    reviews.slice(0, 3).forEach(review => {
+                    reviews.forEach(review => {
                         reviewsHTML += `
                             <div class="review">
                                 <div class="review-author">
@@ -2445,7 +2446,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                 </div>
 
                 <div id="reviews" class="product-detail-tab-content expandable">
-                    <div id="reviews-container" class="expandable-content"></div>
+                    <div id="reviews-container" class="expandable-content" style="max-height: 300px; overflow: hidden;"></div>
                     <a href="#" class="see-more-link" id="see-more-reviews" style="display:none;">...See more</a>
                     <div class="review-form">
                         <h3>Write a Review</h3>
@@ -2588,44 +2589,14 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             }
 
             const seeMoreReviews = document.getElementById('see-more-reviews');
-            if (seeMoreReviews) {
-                seeMoreReviews.addEventListener('click', async function(e) {
+            const reviewsContainer = document.getElementById('reviews-container');
+            if (seeMoreReviews && reviewsContainer) {
+                seeMoreReviews.addEventListener('click', function(e) {
                     e.preventDefault();
-                    const reviewsContainer = document.getElementById('reviews-container');
-                    const productId = document.querySelector('.product-detail-page').dataset.productId;
-
-                    if (this.textContent === '...See more') {
-                        try {
-                            const response = await fetch(`get_approved_reviews.php?product_id=${productId}`);
-                            const reviews = await response.json();
-                            let reviewsHTML = '';
-                            if (reviews.length > 0) {
-                                reviews.forEach(review => {
-                                    reviewsHTML += `
-                                        <div class="review">
-                                            <div class="review-author">
-                                                <div class="review-avatar">${review.name.charAt(0)}</div>
-                                                <span class="review-name">${review.name}</span>
-                                            </div>
-                                            <div class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
-                                            <p class="review-comment">${review.comment}</p>
-                                            <div class="review-timestamp">${review.timestamp}</div>
-                                        </div>
-                                    `;
-                                });
-                            } else {
-                                reviewsHTML = '<p>No reviews yet.</p>';
-                            }
-                            reviewsContainer.innerHTML = reviewsHTML;
-                            this.textContent = '...See less';
-                        } catch (error) {
-                            console.error('Error fetching all reviews:', error);
-                            reviewsContainer.innerHTML = '<p>Could not load all reviews.</p>';
-                        }
+                    reviewsContainer.classList.toggle('expanded');
+                    if (reviewsContainer.classList.contains('expanded')) {
+                        this.textContent = '...See less';
                     } else {
-                        const reviewsContainer = document.getElementById('reviews-container');
-                        const productId = document.querySelector('.product-detail-page').dataset.productId;
-                        fetchAndDisplayReviews(productId, reviewsContainer);
                         this.textContent = '...See more';
                     }
                 });
