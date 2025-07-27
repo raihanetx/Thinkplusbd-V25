@@ -2434,7 +2434,7 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                 </div>
 
                 <div id="description" class="product-detail-tab-content active expandable">
-                    <div class="expandable-content" id="description-content">
+                    <div class="expandable-content" id="description-content" style="max-height: 150px; overflow: hidden;">
                         ${longDescription}
                     </div>
                     <a href="#" class="see-more-link" id="see-more-description">...See more</a>
@@ -2563,25 +2563,24 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         function setupShowMore() {
             const seeMoreDescription = document.getElementById('see-more-description');
             const descriptionContent = document.getElementById('description-content');
-            const expandableDescription = document.querySelector('#description.expandable');
 
-            if (seeMoreDescription && descriptionContent && expandableDescription) {
+            if (seeMoreDescription && descriptionContent) {
+                if (descriptionContent.scrollHeight > 150) {
+                    seeMoreDescription.style.display = 'inline';
+                } else {
+                    seeMoreDescription.style.display = 'none';
+                }
+
                 seeMoreDescription.addEventListener('click', function(e) {
                     e.preventDefault();
-                    expandableDescription.classList.toggle('expanded');
-                    if (expandableDescription.classList.contains('expanded')) {
+                    if (descriptionContent.style.maxHeight === '150px') {
+                        descriptionContent.style.maxHeight = 'none';
                         this.textContent = '...Show less';
                     } else {
+                        descriptionContent.style.maxHeight = '150px';
                         this.textContent = '...Show more';
                     }
                 });
-
-                // Initially hide the button if content is not overflowing
-                if (descriptionContent.scrollHeight <= descriptionContent.clientHeight) {
-                    seeMoreDescription.style.display = 'none';
-                } else {
-                    seeMoreDescription.style.display = 'inline';
-                }
             }
 
             const seeMoreReviews = document.getElementById('see-more-reviews');
