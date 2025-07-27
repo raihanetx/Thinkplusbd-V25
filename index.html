@@ -1106,16 +1106,45 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             .product-actions button { width: 100%; margin-bottom: 0.45rem; }
             .product-actions button:last-child { margin-bottom: 0; }
             .product-detail-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .product-detail-main-image-container {
+            order: 1;
+            width: 100%;
+            flex: none;
+        }
+
+        .product-detail-info {
+            order: 2;
+            width: 100%;
         }
 
         .product-detail-short-description {
             font-size: 1.1rem;
             color: #555;
             margin-bottom: 1rem;
+        }
+
+        @media (min-width: 769px) {
+            .product-detail-container {
+                flex-direction: row;
+                gap: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .product-detail-main-image-container {
+                order: 1;
+                flex: 1 1 400px;
+            }
+
+            .product-detail-info {
+                order: 2;
+                flex: 1 1 500px;
+            }
         }
             .product-detail-title { white-space: normal; overflow: visible; text-overflow: initial; }
             .product-listings.container { padding-left: 0.9rem; padding-right: 0.9rem; padding-top: 0.45rem; padding-bottom: 0.45rem; }
