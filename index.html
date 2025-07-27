@@ -647,8 +647,12 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
         .review-form { margin-top: 2rem; }
         .review-form .form-group { margin-bottom: 1rem; }
         .review-form label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-        .review-form input, .review-form textarea, .review-form select { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; }
-        .review-form button { background-color: var(--primary-color); color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; }
+        .review-form input, .review-form textarea { width: 100%; padding: 0.75rem; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; }
+        .review-form input::placeholder, .review-form textarea::placeholder { color: #999; }
+        .rating-stars { display: flex; justify-content: center; margin-bottom: 1rem; }
+        .rating-stars .fa-star { font-size: 2rem; color: #ccc; cursor: pointer; transition: color 0.2s; }
+        .rating-stars .fa-star:hover, .rating-stars .fa-star.selected { color: #f39c12; }
+        .submit-review-btn { background-color: #007bff; color: white; padding: 0.7rem 1.5rem; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 1.1rem; text-align: center; }
 
         .review {
             border-bottom: 1px solid #eee;
@@ -2538,24 +2542,25 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
                         <h3>Write a Review</h3>
                         <form id="reviewForm">
                             <div class="form-group">
-                                <label for="reviewerName">Name</label>
-                                <input type="text" id="reviewerName" required>
+                                <label for="reviewerName" class="visually-hidden">Full Name</label>
+                                <input type="text" id="reviewerName" placeholder="Enter your name" required>
                             </div>
                             <div class="form-group">
-                                <label for="reviewRating">Rating</label>
-                                <select id="reviewRating" required>
-                                    <option value="5">5 Stars</option>
-                                    <option value="4">4 Stars</option>
-                                    <option value="3">3 Stars</option>
-                                    <option value="2">2 Stars</option>
-                                    <option value="1">1 Star</option>
-                                </select>
+                                <label for="reviewRating" class="visually-hidden">Rating</label>
+                                <div class="rating-stars">
+                                    <i class="fas fa-star" data-value="1"></i>
+                                    <i class="fas fa-star" data-value="2"></i>
+                                    <i class="fas fa-star" data-value="3"></i>
+                                    <i class="fas fa-star" data-value="4"></i>
+                                    <i class="fas fa-star" data-value="5"></i>
+                                </div>
+                                <input type="hidden" id="reviewRating" name="reviewRating" value="0">
                             </div>
                             <div class="form-group">
-                                <label for="reviewComment">Comment</label>
-                                <textarea id="reviewComment" rows="4" required></textarea>
+                                <label for="reviewComment" class="visually-hidden">Your Review</label>
+                                <textarea id="reviewComment" rows="4" placeholder="Tell us about your experience..." required></textarea>
                             </div>
-                            <button type="submit">Submit Review</button>
+                            <button type="submit" class="submit-review-btn">Submit Review</button>
                         </form>
                     </div>
                 </div>
@@ -2649,6 +2654,22 @@ src="https://www.facebook.com/tr?id=482675157669768&ev=PageView&noscript=1"
             setupRelatedProductImages();
             setupTabs();
             setupShowMore();
+            setupStarRating();
+        }
+
+        function setupStarRating() {
+            const stars = document.querySelectorAll('.rating-stars .fa-star');
+            const ratingInput = document.getElementById('reviewRating');
+
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const value = parseInt(star.dataset.value);
+                    ratingInput.value = value;
+                    stars.forEach(s => {
+                        s.classList.toggle('selected', parseInt(s.dataset.value) <= value);
+                    });
+                });
+            });
         }
 
         function setupShowMore() {
